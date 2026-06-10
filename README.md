@@ -1,0 +1,1 @@
+# check-in-notes-plugin
