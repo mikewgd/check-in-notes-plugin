@@ -1,0 +1,19 @@
+{
+  "name": "check-in-notes-plugin",
+  "version": "1.0.0",
+  "main": "scripts/main.js",
+  "directories": {
+    "example": "examples"
+  },
+  "type": "module",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "ISC",
+  "description": "",
+  "dependencies": {
+    "dotenv": "^17.4.2",
+    "googleapis": "^105.0.0"
+  }
+}
