@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## What this is
 
-A Claude Code skill (`/check-in YYYY-MM-DD`) that generates weekly workout check-in summaries for the repo owner's trainer. The skill orchestrates a Node script that pulls workout logs from a Google Sheet, filters them to the past week, and writes a markdown file at `check-ins/<date>.md` using `templates/email.md` as the output shape. After the file exists, the skill summarizes the `## Data from Application:` block (using `examples/` as few-shot guidance), asks the user a fixed set of follow-up questions, fills in the placeholders, then creates a Gmail draft via `scripts/draftEmail.js`. See `docs/PLANNING.md` for the full intended flow.
+A Claude Code skill (`/check-in YYYY-MM-DD`) that generates weekly workout check-in summaries for the repo owner's trainer. The skill orchestrates a Node script that pulls workout logs from a Google Sheet, filters them to the past week, and writes a markdown file at `check-ins/<date>.md` using `templates/email.md` as the output shape. After the file exists, the skill summarizes the `## Data from Application:` block (using `examples/` as few-shot guidance), asks the user a fixed set of follow-up questions, **previews the draft summary and questions for the user to revise/approve before writing**, fills in the placeholders, then creates a Gmail draft via `scripts/draftEmail.js`. See `docs/PLANNING.md` for the full intended flow.
 
 ## Running
 
@@ -28,6 +28,10 @@ The data path is deliberately split across two Google environments because the r
 4. **`createCheckInFile.js`** writes `check-ins/<date>.md` from `populateTemplate`, with the filtered log lines formatted as `- <date> (<W#> <workout>: <exercise>) - <note>`. Workout-week prefix (`W5`, etc.) is extracted from the exercise string via regex, not stored separately. The `check-ins/` directory must exist before `main.js` runs — `fs.writeFile` won't create it.
 
 Every async function returns `{success: boolean, data: <result-or-message>}`. The skill surface (per `docs/PLANNING.md`) shows `data` to the user on failure.
+
+## Permissions
+
+`.claude/settings.json` (checked in) holds a scoped `permissions.allow` list so the skill runs without prompting: `Edit`/`Write` under `check-ins/**` and `Bash(node scripts/main.js:*)` / `Bash(node scripts/draftEmail.js:*)`. Note `allowed-tools` in the skill frontmatter only gates *which* tools the skill may use — it does not auto-approve them; that's what this allowlist is for. `scripts/auth.js` is deliberately not allowlisted. Permission settings load at session start, so edits here take effect next session.
 
 ## Secrets
 

@@ -6,8 +6,9 @@ A Claude Code skill (`/check-in YYYY-MM-DD`) that turns a week of workout logs i
 
 1. Reads workout logs from a Google Sheet (filtered to the past 7 days).
 2. Writes `check-ins/<date>.md` with the raw entries.
-3. Summarizes the week, asks six follow-up questions (weight, appetite, digestion, HR, skips, comments), and fills in the markdown.
-4. Creates a Gmail draft addressed to the trainer using `templates/email.md` as the wrapper.
+3. Summarizes the week, asks six follow-up questions (weight, appetite, digestion, HR, skips, comments), then shows you the draft summary and questions for review before writing anything.
+4. Fills in the markdown once you approve.
+5. Creates a Gmail draft addressed to the trainer using `templates/email.md` as the wrapper.
 
 The draft is **never sent automatically** — open Gmail → Drafts and hit Send yourself.
 
@@ -68,8 +69,9 @@ The date is the **end** of the check-in week (script subtracts 1–7 days from i
 
 1. Run the pipeline and create `check-ins/2026-06-12.md`.
 2. Summarize the workouts and ask you six follow-up questions.
-3. Fill in the placeholders.
-4. Create a Gmail draft.
+3. Show you the draft summary and questions and wait for your feedback/approval.
+4. Fill in the placeholders.
+5. Create a Gmail draft.
 
 To re-run only the draft (without re-pulling sheet data):
 
@@ -77,10 +79,30 @@ To re-run only the draft (without re-pulling sheet data):
 node scripts/draftEmail.js 2026-06-12
 ```
 
+## Permissions
+
+`.claude/settings.json` allowlists the file edits and Node commands the skill uses, so it runs without permission prompts:
+
+```json
+{
+  "permissions": {
+    "allow": [
+      "Edit(check-ins/**)",
+      "Write(check-ins/**)",
+      "Bash(node scripts/main.js:*)",
+      "Bash(node scripts/draftEmail.js:*)"
+    ]
+  }
+}
+```
+
+The scope is intentionally narrow — only writes under `check-ins/` and the two pipeline scripts. `node scripts/auth.js` is left out on purpose (rare one-time OAuth step). Permission settings load at session start, so changes take effect on the next Claude Code session.
+
 ## Project structure
 
 ```
 .
+├── .claude/settings.json      # permission allowlist so the skill runs without prompts
 ├── .claude/skills/check-in/   # skill definition (SKILL.md)
 ├── check-ins/                 # generated check-in markdown (per date)
 ├── docs/PLANNING.md           # original design notes

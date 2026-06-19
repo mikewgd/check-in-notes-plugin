@@ -1,0 +1,10 @@
+{
+  "permissions": {
+    "allow": [
+      "Edit(check-ins/**)",
+      "Write(check-ins/**)",
+      "Bash(node scripts/main.js:*)",
+      "Bash(node scripts/draftEmail.js:*)"
+    ]
+  }
+}

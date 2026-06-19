@@ -59,7 +59,17 @@ Rules:
 - If the user answers `skip` for #5, use `No skips`.
 - #6 appends to `[workoutQuestions]` from Step 3 — combine them into one block separated by a blank line, with the user's additional comment last. If both are empty, write `None.`
 
-## Step 6 — Fill the file
+## Step 6 — Preview and get feedback
+
+Before touching the file, show the user the two pieces of generated prose so they can revise them:
+- the `[workoutNotes]` summary from Step 4
+- the combined `[workoutQuestions]` block from Step 3 + #6
+
+Present them as plain text and ask: "Here's the draft summary and questions — want any changes, or should I write the file?"
+
+Loop on their feedback: apply requested edits to the summary/questions and re-show until the user approves (e.g. "looks good", "yes", "write it"). Only continue to Step 7 once they've approved. Do **not** write or edit the check-in file during this step.
+
+## Step 7 — Fill the file
 
 Edit `check-ins/<DATE>.md` in place. The template `createCheckInFile.js` wrote has these slots:
 
@@ -75,11 +85,11 @@ Edit `check-ins/<DATE>.md` in place. The template `createCheckInFile.js` wrote h
 
 Use exact-string Edit, not regex. Verify all placeholders are gone after the edit — if any remain, fix them before reporting success.
 
-## Step 7 — Show the result
+## Step 8 — Show the result
 
 Read the finished `## Output:` block back to the user and tell them the file path.
 
-## Step 8 — Create the Gmail draft
+## Step 9 — Create the Gmail draft
 
 Run:
 
