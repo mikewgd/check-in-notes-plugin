@@ -57,7 +57,7 @@ Rules:
 - All six must be answered before continuing.
 - If the user answers `skip` for #2 or #3, use `No issues`.
 - If the user answers `skip` for #5, use `No skips`.
-- #6 appends to `[workoutQuestions]` from Step 3 — combine them into one block separated by a blank line, with the user's additional comment last. If both are empty, write `None.`
+- #6 combines with `[workoutQuestions]` from Step 3 into a single block, each item on its own line with a single line break between them (no blank lines), with the user's additional comment last. Number the items (`1.`, `2.`, `3.`, …) **only when there are two or more items, or a single item that is an actual question** — a lone comment (no question) is written as plain prose with no number. If both are empty, write `None.`
 
 ## Step 6 — Preview and get feedback
 
