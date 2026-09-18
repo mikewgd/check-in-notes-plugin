@@ -50,7 +50,7 @@ async function getDateRange(inputDate) {
   const appsScript = await runAppsScript();
 
   if (appsScript.success && dates.length === 7) {
-    console.log('Retrieving Google Sheet');
+    console.log('Retrieving log data');
     const logs = await getLogData(dates);
     
     if (!logs.success || logs.data.length < 1) {
