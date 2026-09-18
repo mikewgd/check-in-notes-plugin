@@ -3,7 +3,7 @@ import dotenv from 'dotenv';
 import path from 'path';
 import { fileURLToPath } from 'url';
 import { runAppsScript } from "./runAppScript.js";
-import { getLogData } from './getSheet.js';
+import { getLogData } from './getLogData.js';
 import { createMDFile } from './createCheckInFile.js';
 
 const inputArg = process.argv[2];
