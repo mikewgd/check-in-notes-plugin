@@ -13,6 +13,7 @@
   "license": "ISC",
   "description": "",
   "dependencies": {
+    "csv-parse": "^7.0.2",
     "dotenv": "^17.4.2",
     "googleapis": "^105.0.0"
   }

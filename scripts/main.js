@@ -7,7 +7,7 @@ import { createMDFile } from './createCheckInFile.js';
 import { getDateRange } from './helpers.js'
 
 const inputArg = process.argv[2];
-const SOURCE = 'API';
+const SOURCE = 'CSV';
 
 (async () => {
   const __filename = fileURLToPath(import.meta.url);

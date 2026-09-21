@@ -2,7 +2,7 @@ import fs from 'node:fs/promises';
 import path from 'node:path';
 import process2 from 'node:process';
 
-const populateTemplate = (date, logs) => `# Check-in for ${date}
+const populateTemplate = (date, { links, logs }) => `# Check-in for ${date}
 
 ## Data from Application:
 ${logs}
@@ -11,21 +11,24 @@ ${logs}
 **Appetite** = (Replace with how appetite has been)
 **Digestion** = (Replace with how digestion has been)
 **Workout performance**
-Avg HR (Replace with average heart rate). [workoutNotes] 
+Avg HR (Replace with average heart rate). [workoutNotes] ${links.join(', ')}
 **Did you miss any cardio sessions, meals or weight sessions? If so, how many?**
 (Replace if you missed any cardio and weight session and how many)
 **Any questions or comments?**
 (Replace with any questions or comments) [workoutQuestions]`;
 
 async function createLogList(data) {
-  // const weekRegex = /\bW\d+/;
   let finalOutput = '';
+  let workoutLinks = [];
 
   data.map(({ workout, workoutId, workoutNotes, date, exercises }) => {
+    if (workoutId !== '') {
+      workoutLinks.push(`${workout.replace(/\bW\d+/, '').trim()}: https://hevy.com/workout/${workoutId}`);
+    }
+
     finalOutput += `
 ### ${workout} (${date})
-**Notes:** ${workoutNotes}
-https://hevy.com/workout/${workoutId}
+**Notes:** ${workoutNotes}${workoutId !== '' ? `\nhttps://hevy.com/workout/${workoutId}` : ``}
 
 ${exercises.map(({ exerciseName, exerciseNote, sets }) => `
 **${exerciseName}**
@@ -35,15 +38,15 @@ ${sets.map(({ repCount, weight, rpe }, index) => `
 `).join('')}`
   });
 
-  return finalOutput;
+  return { logs: finalOutput, links: workoutLinks };
 }
 
 export async function createMDFile(data, date) {
   const mdPath = path.join(process2.cwd(), `./check-ins/${date}.md`);
-  const logs = await createLogList(data);
+  const workoutData = await createLogList(data);
 
   try {
-    await fs.writeFile(mdPath, populateTemplate(date, logs));
+    await fs.writeFile(mdPath, populateTemplate(date, workoutData));
     return { success: true, data: 'File written successfully!'}
   } catch (error) {
     return { success: false, data: 'Failed to write file!' };
@@ -56,5 +59,4 @@ export async function createMDFile(data, date) {
       return { success: false, data: `System Error Details: ${error.message}` };
     }
   }
-  
 }

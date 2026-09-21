@@ -1,39 +1,26 @@
-export async function convertCSVtoJSON(data) {
-  let finalObj = { rows: [] };
+import { parse } from 'csv-parse/sync';
 
-  if (!data || data.length === 0) {
-    return {
-      success: false,
-      data: `There is no data.`
-    }
-  }
-
-  const [ headers ] = data;
-  const rows = data.slice(1);
-  
-  const valueTransformer = value => {
-    let val = value;
-
-    if (!isNaN(val) && val.trim() !== '') {
-      return parseFloat(value);
-    }
-    if (value) {
-      val = value;
-    }
-    return val;
+export function convertCSVtoJSON(csvString) {
+  if (!csvString) {
+    return { success: false };
   };
 
-  console.log('Transforming CSV into JSON');
-
-  rows.forEach((i, index) => {
-    let row = {};
-    headers.forEach((h, hIndex) => { 
-      row[h] = valueTransformer(i[hIndex]); 
+  try {
+    console.log('Converting CSV to JSON');
+    // 'columns: true' automatically treats the first row as headers 
+    // and turns every following row into a clean JavaScript object!
+    // 'skip_empty_lines: true' cleans up trailing blank lines.
+    const records = parse(csvString, {
+      columns: true,
+      skip_empty_lines: true,
+      trim: true // Automatically cleans up spaces around values
     });
-    finalObj.rows.push(row);
-  });
 
-  return finalObj;
+    return { success: true, data: records };
+  } catch (error) {
+    console.log(`CSV Parse: ${error.message}`);
+    return { success: false };
+  }
 }
 
 export function kgToLbs(kg, decimals = 2) {
@@ -64,14 +51,12 @@ export async function getDateRange(inputDate) {
   return dateRangeArray;
 }
 
-// Apps Script sometimes returns dates as "M/D/YY" before the YYYY-MM-DD
-// format finishes applying — normalize both shapes to YYYY-MM-DD.
-export function normalizeDate(s) {
-  if (typeof s !== 'string') return null;
-  if (/^\d{4}-\d{2}-\d{2}$/.test(s)) return s;
-  const m = s.match(/^(\d{1,2})\/(\d{1,2})\/(\d{2}|\d{4})$/);
-  if (!m) return null;
-  const [, mo, d, y] = m;
-  const yyyy = y.length === 2 ? `20${y}` : y;
-  return `${yyyy}-${mo.padStart(2, '0')}-${d.padStart(2, '0')}`;
-};
+export function formatDate(dateString) {
+  if (!dateString) return '';
+  const d = new Date(dateString);
+  const year = d.getFullYear();
+  const month = String(d.getMonth() + 1).padStart(2, '0');
+  const day = String(d.getDate()).padStart(2, '0');
+  
+  return `${year}-${month}-${day}`;
+}
