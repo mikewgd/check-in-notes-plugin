@@ -18,34 +18,24 @@ Avg HR (Replace with average heart rate). [workoutNotes]
 (Replace with any questions or comments) [workoutQuestions]`;
 
 async function createLogList(data) {
-  const weekRegex = /\bW\d+/;
-  let output = '';
+  // const weekRegex = /\bW\d+/;
+  let finalOutput = '';
 
-  const getWorkoutName = (exercise, workout) => {
-    let name = '';
+  data.map(({ workout, workoutId, workoutNotes, date, exercises }) => {
+    finalOutput += `
+### ${workout} (${date})
+**Notes:** ${workoutNotes}
+https://hevy.com/workout/${workoutId}
 
-    data.filter(i => {
-      if (i.workout.trim() === workout) {
-        const match = i.exercise.match(weekRegex);
+${exercises.map(({ exerciseName, exerciseNote, sets }) => `
+**${exerciseName}**
+_${exerciseNote}_
+${sets.map(({ repCount, weight, rpe }, index) => `
+- Set ${index + 1} = ${repCount} reps / ${weight}lbs / ${rpe} rpe`).join('\n')}
+`).join('')}`
+  });
 
-        if (match) {
-          const weekCode = match[0];
-          name = `${weekCode} ${workout.trim()}`;
-          return;
-        }
-      }
-    });
-
-    return name;
-  }
-
-  data.map(({ date, note, workout, exercise}) => {
-    let workoutName = getWorkoutName(exercise, workout);
-    let exerciseName = exercise.replace(weekRegex, '').trim();
-    output += `- ${date.trim()} (${workoutName}: ${exerciseName}) - ${note.trim()}\n`
-  })
-
-  return output;
+  return finalOutput;
 }
 
 export async function createMDFile(data, date) {
