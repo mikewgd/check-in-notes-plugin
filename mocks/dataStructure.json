@@ -1,0 +1,21 @@
+[
+  {
+    "workout": "name of workout, i.e. W8 Arms",
+    "workoutId": "hevy api provides an id for the workout which can be used to create the link",
+    "workoutNotes": "notes for the workout", 
+    "date": "date of the workout",
+    "exercises": [
+      {
+        "exerciseName": "name of the exercise, i.e. Bench press",
+        "exerciseNote": "notes specific to the exercise",
+        "sets": [
+          {
+            "repCount": "the amount of reps for the set",
+            "weight": "the amount of weight in lbs for the set",
+            "rpe": "the rpe for the set"
+          }
+        ]
+      }
+    ]
+  }
+]

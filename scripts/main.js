@@ -2,30 +2,12 @@
 import dotenv from 'dotenv';
 import path from 'path';
 import { fileURLToPath } from 'url';
-import { runAppsScript } from "./runAppScript.js";
 import { getLogData } from './getLogData.js';
 import { createMDFile } from './createCheckInFile.js';
+import { getDateRange } from './helpers.js'
 
 const inputArg = process.argv[2];
-
-async function getDateRange(inputDate) {
-  const startDate = new Date(inputDate);
-  const endDate = new Date(inputDate);
-  const formatDate = (date) => date.toISOString().split('T')[0];
-  const dateRangeArray = [];
-
-  endDate.setUTCDate(inputDate.getUTCDate() - 1);
-  startDate.setUTCDate(inputDate.getUTCDate() - 7);
-
-  let currentDate = new Date(startDate);
-
-  while (currentDate <= endDate) {
-    dateRangeArray.push(formatDate(currentDate));
-    currentDate.setUTCDate(currentDate.getUTCDate() + 1);
-  }
-
-  return dateRangeArray;
-}
+const SOURCE = 'API';
 
 (async () => {
   const __filename = fileURLToPath(import.meta.url);
@@ -47,11 +29,10 @@ async function getDateRange(inputDate) {
 
   console.log('Calculating date range');
   const dates = await getDateRange(inputDate);  
-  const appsScript = await runAppsScript();
 
-  if (appsScript.success && dates.length === 7) {
+  if (dates.length === 7) {
     console.log('Retrieving log data');
-    const logs = await getLogData(dates);
+    const logs = await getLogData(dates, SOURCE);
     
     if (!logs.success || logs.data.length < 1) {
       return { success: false, data: `There was an error with grabbing the logs.`}

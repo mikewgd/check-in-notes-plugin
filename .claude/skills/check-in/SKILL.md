@@ -22,23 +22,23 @@ On success, the script has written `check-ins/<DATE>.md`.
 
 ## Step 2 — Read the inputs
 
-Read three files:
-- `check-ins/<DATE>.md` — extract the block between `## Data from Application:` and `## Output:`. Each line is `- <date> (<W#> <workout>: <exercise>) - <note>`.
-- `examples/example-1.md` and `examples/example-2.md` — use these as few-shot guidance for tone, length, and what details to keep vs. drop in the summary. Match their style; don't invent a new one.
+Read:
+- `check-ins/<DATE>.md` — extract the block between `## Data from Application:` and `## Output:`. It's organized per workout day: `### <workout> (<date>)`, a `**Notes:** <workout-level note>` line, a Hevy link, then per exercise a `**<exercise name>**` heading, an italicized `_<exercise note>_` line, and a `- Set <N> = <reps> reps / <weight>lbs / <rpe> rpe` line per set.
+- `resources/*.md` — RPE reference material (what the RPE scale means, the RIR translation matrix, and how to analyze performance trends with RPE). Use this as the analytical framework for Step 4.
 
 ## Step 3 — Extract questions from the notes
 
-Scan the workout notes for any explicit questions or things the user flagged to ask the trainer (look for `?`, phrases like "ask [TRAINER_NAME]", "should I", "is it ok to"). Collect them verbatim or lightly rephrased — these become `[workoutQuestions]`. If there are none, leave that placeholder removed (empty string, no "N/A").
+Scan both the workout-level notes and each exercise's note for any explicit questions or things the user flagged to ask the trainer (look for `?`, phrases like "ask [TRAINER_NAME]", "should I", "is it ok to"). Extract just the question itself — strip addressee/framing preambles like "Ask [TRAINER_NAME] if..." or "Ask [TRAINER_NAME]:" so only the actual question remains (e.g. "Ask [TRAINER_NAME] if there is an alternative exercise for rear delt cable fly?" becomes "Is there an alternative exercise for rear delt cable fly?"). These become `[workoutQuestions]`. If there are none, leave that placeholder removed (empty string, no "N/A").
 
 ## Step 4 — Summarize the workout performance
 
-Write a single paragraph in the voice of the examples. It should cover:
-- Notable form issues or wins
-- Weight adjustments (went up, went down, felt too heavy/light)
-- Exercises that were unusually tough or easy
-- Any equipment/location anomalies (e.g. hotel gym)
+Write a single paragraph (roughly 4-7 sentences) synthesizing the whole week. Use the RPE scale and RIR translation matrix from `resources/*.md` as vocabulary to describe what happened in the data — **report patterns, don't diagnose them**. The trainer draws the conclusions (fatigue vs. progress vs. programming issue); the summary's job is to surface the notable data points so he can. In particular look for and state, neutrally:
+- **RPE movement across sets at the same weight** (e.g. "RPE rose from 8.5 to 9.5 across two sets") without labeling it as fatigue, overtraining, or any other cause.
+- **Weight changes alongside RPE** (e.g. "weight increased from 35 to 50lbs while RPE held at 7") without characterizing it as good/bad progression.
+- **Sets landing at RPE 9.5–10** — worth noting factually as near-failure effort, especially if it recurs across multiple exercises.
+- Notable form/control issues, equipment or location anomalies (e.g. crowded gym, subbed machines), and exercises that were unusually tough or easy — as reported in the notes, not inferred.
 
-Keep it concise — the examples are ~3-5 sentences. Don't list every exercise; synthesize. This becomes `[workoutNotes]`.
+Don't list every exercise or every set — synthesize into the most notable data points across the week, stated as observations rather than conclusions. This becomes `[workoutNotes]`.
 
 ## Step 5 — Ask the user the follow-up questions
 
