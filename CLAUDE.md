@@ -20,6 +20,10 @@ Requires `.env` at the repo root with `FOLDER_ID` (Drive folder containing the C
 
 `.env` also carries `APP_URL`, `APP_KEY`, `PROJECT_ID` — these are leftovers from an earlier Apps-Script-based pipeline and are **no longer read by any script that main.js calls** (see "Legacy/unused code" below). Safe to ignore; don't treat their absence as an error.
 
+## Demo mode
+
+`/check-in YYYY-MM-DD demo [weight] [avg-HR]` (e.g. `/check-in 2026-10-30 demo 170 150`) runs a faster flow for live demos. It's defined in `.claude/skills/check-in/SKILL.md` ("Demo mode" section), plus a `demo` flag on `scripts/draftEmail.js`. Versus the normal flow it: skips reading `resources/` (uses an inline RPE cheat sheet instead), writes a 2–3 sentence summary, takes weight/HR from the arguments and defaults the other follow-ups (no questions asked), **skips the preview/approval step**, and fills the file with two Edits instead of one per placeholder. It still runs the real pipeline and creates a real Gmail draft, but via `node scripts/draftEmail.js <date> demo`, which **omits the `To:` address** (the `TO` line in `templates/email.md` is ignored) and swaps the "Hey <trainer>," greeting for "Hey there,". The cheat sheet duplicates `resources/*.md` (the source of truth), so keep them in sync.
+
 ## Architecture
 
 Two interchangeable data sources feed the same pipeline, both converging on one normalized shape (per-workout → per-exercise → per-set) documented in `mocks/dataStructure.json`:

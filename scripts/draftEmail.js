@@ -52,7 +52,7 @@ function mdToHtml(md) {
 function buildRawMessage({ to, subject, htmlBody, plainBody }) {
   const boundary = '----=_Part_' + Math.random().toString(36).slice(2);
   const lines = [
-    `To: ${to}`,
+    ...(to ? [`To: ${to}`] : []),
     `Subject: ${subject}`,
     'MIME-Version: 1.0',
     `Content-Type: multipart/alternative; boundary="${boundary}"`,
@@ -77,7 +77,9 @@ function buildRawMessage({ to, subject, htmlBody, plainBody }) {
     .replace(/=+$/, '');
 }
 
-export async function draftEmail(date) {
+// demo: create the draft with no To: address and a generic greeting (no trainer name), so a demo
+// can't be mistaken for a real send-ready email.
+export async function draftEmail(date, { demo = false } = {}) {
   const filePath = path.join(process2.cwd(), `./check-ins/${date}.md`);
 
   let mdContent;
@@ -93,20 +95,21 @@ export async function draftEmail(date) {
   const template = await fs.readFile(TEMPLATE_PATH, 'utf8');
   const { to, subjectTemplate, bodyTemplate } = parseEmailTemplate(template);
 
-  if (!to || !subjectTemplate || !bodyTemplate) {
+  if ((!to && !demo) || !subjectTemplate || !bodyTemplate) {
     return { success: false, data: 'templates/email.md is missing TO, SUBJECT, or BODY.' };
   }
 
   const [y, m, d] = date.split('-');
   const displayDate = `${m}/${d}/${y}`;
   const subject = subjectTemplate.replace('[date]', displayDate);
-  const filledBody = bodyTemplate.replace('[output]', output);
+  const body = demo ? bodyTemplate.replace(/^Hey \w+,/m, 'Hey there,') : bodyTemplate;
+  const filledBody = body.replace('[output]', output);
   const htmlBody = `<div style="font-family: sans-serif;">${mdToHtml(filledBody)}</div>`;
 
   const auth = await getAuth();
   const gmail = google.gmail({ version: 'v1', auth });
 
-  const raw = buildRawMessage({ to, subject, htmlBody, plainBody: filledBody });
+  const raw = buildRawMessage({ to: demo ? null : to, subject, htmlBody, plainBody: filledBody });
 
   try {
     const res = await gmail.users.drafts.create({
@@ -121,7 +124,7 @@ export async function draftEmail(date) {
 
 const inputArg = process2.argv[2];
 if (inputArg) {
-  draftEmail(inputArg).then((r) => {
+  draftEmail(inputArg, { demo: process2.argv[3] === 'demo' }).then((r) => {
     console.log(r);
     if (!r.success) process2.exit(1);
   });

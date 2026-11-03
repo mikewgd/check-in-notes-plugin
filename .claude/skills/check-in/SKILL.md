@@ -6,11 +6,33 @@ allowed-tools: Bash, Read, Write, Edit
 
 # /check-in
 
-Invoked as `/check-in YYYY-MM-DD`. The date is the end of the check-in week (the script subtracts 1–7 days from it).
+Invoked as `/check-in YYYY-MM-DD`, or `/check-in YYYY-MM-DD demo [weight] [avg-HR]` for demo mode (see below). The date is the end of the check-in week (the script subtracts 1–7 days from it).
+
+## Demo mode
+
+If the second argument is `demo`, run this faster flow for live demos: fewer round trips and no waiting on the user. Any further arguments are the fasted weight and average heart rate, in that order (e.g. `/check-in 2026-10-30 demo 170 150`). Everything not listed in the table is unchanged.
+
+| Step | Demo-mode override |
+|---|---|
+| 1 | Pass **only the date** (the first argument) to `main.js`. |
+| 2 | Read **only** `check-ins/<DATE>.md`. Don't read or list `resources/` — use the cheat sheet below. |
+| 4 | The summary is 2–3 sentences, not 4–7. Same first-person voice and same report-don't-diagnose rule. |
+| 5 | Don't ask the six questions. Take weight and HR from the arguments; if either is missing, ask for just those two in a single line and wait. Use fixed defaults for the rest: appetite `No issues`, digestion `No issues`, skips `No skips`, no additional comment (so Step 3's questions alone fill the questions block, or `None.` if there are none). |
+| 6 | Skip the preview/approval loop. |
+| 7 | Use exactly two Edits, one after the other, on these contiguous spans (they hold every placeholder): <br>**Edit 1** `old_string` = the lines `**Fasted weight** = (Replace with fasted weight)`, `**Appetite** = (Replace with how appetite has been)`, `**Digestion** = (Replace with how digestion has been)`, `**Workout performance**`, then `Avg HR (Replace with average heart rate). [workoutNotes]`. <br>**Edit 2** `old_string` = the lines `(Replace if you missed any cardio and weight session and how many)`, `**Any questions or comments?**`, then `(Replace with any questions or comments) [workoutQuestions]`. <br>Keep the bold label lines in each `new_string`. Skip the placeholder grep: an Edit fails if its `old_string` doesn't match, so a successful Edit means those placeholders are gone. |
+| 8 | Don't re-read the file. Print the summary, the questions block, and the file path from what you wrote. |
+| 9 | Run `node scripts/draftEmail.js <DATE> demo`. The `demo` flag creates the draft with **no `To:` address** and a generic greeting (`Hey there,` instead of the trainer's name). It's still a real Gmail draft; surface `data` as usual. |
+
+### RPE cheat sheet (demo mode only)
+
+Condensed from `resources/*.md`, which stays the source of truth — update this if those change.
+
+- RPE 10 = 0 reps left (failure); 9.5 = 0–1 left; 9 = 1 left; 8.5 = 1–2 left; 8 = 2 left; 7 = 3 left. Most sets are meant to sit around RPE 7–8; 9.5–10 is near-failure effort.
+- Patterns worth surfacing (state them, don't explain them): RPE climbing across sets at the same weight; weight going up while RPE holds, or the same weight feeling easier than before; sets at 9.5–10, especially recurring across exercises; RPE spiking on exercises done late in a session.
 
 ## Step 1 — Run the data pipeline
 
-Run the Node script and pass the date through verbatim:
+Run the Node script and pass the date (the first argument only — see Demo mode):
 
 ```bash
 node scripts/main.js <DATE>
