@@ -56,7 +56,7 @@ All credential files live in `secrets/` (gitignored as a folder):
 
 ## Service account auth
 
-`secrets/credentials.json` is a Google service account key (`[SERVICE_ACCOUNT_EMAIL]`), only used by the CSV source in `getLogData.js`. For the Drive calls to succeed, the **target folder must be shared with that email**.
+`secrets/credentials.json` is a Google service account key (`<name>@<project>.iam.gserviceaccount.com`), only used by the CSV source in `getLogData.js`. For the Drive calls to succeed, the **target folder must be shared with that email**.
 
 `authorize()`/`googAuth()` uses `GoogleAuth.getClient()` — calling code must not pass the `GoogleAuth` wrapper directly to API methods or you'll get `authClient.request is not a function`.
 
