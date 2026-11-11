@@ -42,7 +42,7 @@ Every async function returns `{success: boolean, data: <result-or-message>}`. Th
 - **`scripts/runAppScript.js`** is dead code — it implements the old flow (POST to a deployed Google Apps Script web-app, gated by `APP_KEY`/`APP_URL`, that converted the latest CSV in `FOLDER_ID` into a cleaned Google Sheet). `main.js` no longer imports or calls it now that `getLogData.js`'s CSV path reads the Drive CSV directly. It's kept in the repo but not wired into the pipeline; don't assume it runs.
 - **`getSheet.js`** and the Sheets-API read path it used to implement no longer exist — superseded by `getLogData.js`.
 - **`examples/`** (few-shot summary examples) no longer exists — superseded by `resources/*.md` (RPE scale reference, RIR translation matrix, and guidance on analyzing performance trends with RPE), which the skill now uses as its analytical framework in the summarization step instead of few-shot examples.
-- **`mocks/`** (`api.json` — a sample raw Hevy API response; `dataStructure.json` — an annotated example of the normalized shape both source paths produce) is reference/documentation only, not imported by any script.
+- **`mocks/`** (`dataStructure.json` — an annotated example of the normalized shape both source paths produce) is reference/documentation only, not imported by any script. A sample raw Hevy API response used to live here as `api.json` but was removed because it held real workout data; see Hevy's API docs for the raw shape.
 
 ## Permissions
 

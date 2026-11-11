@@ -120,7 +120,7 @@ The scope is intentionally narrow — only writes under `check-ins/` and the two
 ├── .claude/skills/check-in/   # skill definition (SKILL.md)
 ├── check-ins/                 # generated check-in markdown (per date)
 ├── docs/PLANNING.md           # original design notes (data-source section predates the CSV/API split)
-├── mocks/                     # sample Hevy API response + annotated normalized data shape, for reference only
+├── mocks/                     # annotated normalized data shape (dataStructure.json), for reference only
 ├── resources/                 # RPE scale + RIR reference material used as the summary's analytical framework
 ├── scripts/                   # Node scripts (see CLAUDE.md for architecture)
 ├── secrets/                   # gitignored: credentials.json, oauth-client.json, gmail-token.json
