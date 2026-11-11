@@ -4,8 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## What this is
 
-A Claude Code skill (`/check-in YYYY-MM-DD`) that generates weekly workout check-in summaries for the repo owner's trainer. The skill orchestrates a Node script that pulls Hevy workout logs (from either the Hevy REST API or a CSV export in Drive), filters them to the past week, and writes a markdown file at `check-ins/<date>.md` using `templates/email.md` as the output shape. After the file exists, the skill summarizes the `## Data from Application:` block (using `resources/*.md` RPE reference material as the analytical framework), extracts any questions the user flagged in their workout notes, asks the user a fixed set of follow-up questions, **previews the draft summary and questions for the user to revise/approve before writing**, fills in the placeholders, then creates a Gmail draft via `scripts/draftEmail.js`. See `docs/PLANNING.md` for the original design notes (written before the CSV/API split existed, so its data-source description is outdated — this file is the current source of truth).
-
+A Claude Code skill (`/check-in YYYY-MM-DD`) that generates weekly workout check-in summaries for the repo owner's trainer. The skill orchestrates a Node script that pulls Hevy workout logs (from either the Hevy REST API or a CSV export in Drive), filters them to the past week, and writes a markdown file at `check-ins/<date>.md` using `templates/email.md` as the output shape. After the file exists, the skill summarizes the `## Data from Application:` block (using `resources/*.md` RPE reference material as the analytical framework), extracts any questions the user flagged in their workout notes, asks the user a fixed set of follow-up questions, **previews the draft summary and questions for the user to revise/approve before writing**, fills in the placeholders, then creates a Gmail draft via `scripts/draftEmail.js`.
 ## Running
 
 End-users invoke the skill (`/check-in YYYY-MM-DD`) — it orchestrates the scripts. Direct invocations:
@@ -35,7 +34,7 @@ Two interchangeable data sources feed the same pipeline, both converging on one 
    - `getLogData(dateRange, source)` runs whichever fetcher, then filters the returned workouts down to those whose `date` falls in `dateRange`.
 3. **`createCheckInFile.js`** writes `check-ins/<date>.md` via `populateTemplate`. `createLogList` walks the nested workout/exercise/set data into `### <workout> (<date>)` sections with a `**Notes:**` line (plus a Hevy link when `workoutId` is set), then per exercise a `**<name>**` heading, an italicized `_<note>_` line, and one `- Set <N> = <reps> reps / <weight>lbs / <rpe> rpe` line per set. Collected workout links are also appended to the "Workout performance" line in the `## Output:` section. The `check-ins/` directory must exist before `main.js` runs — `fs.writeFile` won't create it.
 
-Every async function returns `{success: boolean, data: <result-or-message>}`. The skill surface (per `docs/PLANNING.md`) shows `data` to the user on failure.
+Every async function returns `{success: boolean, data: <result-or-message>}`. The skill shows `data` to the user on failure.
 
 ### Legacy/unused code
 
