@@ -1,17 +1,32 @@
 {
   "name": "check-in-notes-plugin",
   "version": "1.0.0",
-  "main": "scripts/main.js",
-  "directories": {
-    "example": "examples"
+  "description": "Claude Code skill that turns a week of Hevy workout logs into a trainer check-in email draft.",
+  "keywords": [
+    "claude-code",
+    "claude-code-skill",
+    "hevy",
+    "workout-tracker",
+    "fitness",
+    "rpe",
+    "gmail-api",
+    "google-drive-api",
+    "automation"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/mikewgd/check-in-notes-plugin.git"
   },
+  "main": "scripts/main.js",
   "type": "module",
+  "engines": {
+    "node": ">=18"
+  },
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "author": "Michael Levy",
   "license": "MIT",
-  "description": "",
   "dependencies": {
     "csv-parse": "^7.0.2",
     "dotenv": "^17.4.2",

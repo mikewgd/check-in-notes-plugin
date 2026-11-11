@@ -25,7 +25,7 @@ Which one runs is controlled by the `SOURCE` constant at the top of `scripts/mai
 
 - Node 18+
 - A Google account with Gmail (and Drive, if using the CSV source)
-- A Hevy account and API key (if using the API source)
+- A Hevy account and API key (if using the API source; see Hevy's API docs for which plans include API access)
 - Claude Code CLI
 
 ## One-time setup
@@ -34,6 +34,7 @@ Which one runs is controlled by the `SOURCE` constant at the top of `scripts/mai
 
 ```bash
 npm install
+mkdir check-ins   # generated check-ins are gitignored, and the script won't create the folder
 ```
 
 ### 2. Create `.env`
@@ -93,6 +94,31 @@ To re-run only the draft (without re-pulling logs):
 node scripts/draftEmail.js 2026-06-12
 ```
 
+### Demo mode
+
+For live demos, add `demo` (and optionally your fasted weight and average heart rate) after the date:
+
+```
+/check-in 2026-06-12 demo 170 150
+```
+
+It runs the real pipeline but with fewer round trips:
+
+- The summary is 2–3 sentences, and the skill reads an inline RPE cheat sheet instead of `resources/`.
+- The six follow-up questions are skipped. Weight and heart rate come from the arguments (the skill asks for just those two if you leave them off), and the rest default to no issues with appetite and digestion, no skips, and no extra comment.
+- There's no preview/approval step before the file is written.
+- The Gmail draft is created with **no `To:` address** and a generic "Hey there," greeting, so it can't be mistaken for a send-ready email. It's still a real draft in your Gmail, and nothing is ever sent.
+
+To create a demo-style draft from an existing check-in: `node scripts/draftEmail.js 2026-06-12 demo`.
+
+## Known limitations
+
+- **Only the 10 most recent workouts are fetched** from the Hevy API (no pagination), so if more than 10 workouts have happened since the check-in week, the older ones fall off.
+- **The data source is a constant**, not a flag: switch between `'API'` and `'CSV'` by editing `SOURCE` at the top of `scripts/main.js`.
+- **The 7-day window excludes the date you pass in.** It covers the 7 days before it, so a workout on the check-in date itself isn't included.
+- **Gmail re-auth every 7 days** while the OAuth app is in Testing mode (see setup above).
+- **No tests yet.**
+
 ## Permissions
 
 `.claude/settings.json` allowlists the file edits and Node commands the skill uses, so it runs without permission prompts:
@@ -137,3 +163,7 @@ The scope is intentionally narrow — only writes under `check-ins/` and the two
 - `**BODY:**` — uses `[TRAINER_NAME]` (from `.env`) and `[output]` (the filled-in check-in block) placeholders
 
 The recipient comes from `TRAINER_EMAIL` in `.env`, not the template. Edit the template to change the subject or surrounding wording — no code changes needed. Keep the bracketed placeholders unescaped (`[date]`, not `\[date\]`) — some Markdown editors add backslashes when saving, which stops them from being filled in.
+
+## License
+
+MIT. See [LICENSE](LICENSE).
