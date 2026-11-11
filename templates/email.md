@@ -1,4 +1,3 @@
-**TO:** [TRAINER_EMAIL]
 **SUBJECT:** [date] Mike levy check in
 **BODY:**
 

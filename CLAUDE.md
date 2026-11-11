@@ -16,13 +16,13 @@ node scripts/draftEmail.js 2026-06-12 # create Gmail draft from check-ins/<date>
 node scripts/auth.js                  # one-time Gmail OAuth flow; writes secrets/gmail-token.json
 ```
 
-Requires `.env` at the repo root with `FOLDER_ID` (Drive folder containing the CSV export — only needed for the CSV source) and `HEVY_API_KEY` (Hevy API key — only needed for the API source). `secrets/credentials.json` is only needed for the CSV source (service account for Drive); `secrets/oauth-client.json` is needed for Gmail drafting regardless of source (see README). No build, lint, or test setup exists yet.
+Requires `.env` at the repo root with `FOLDER_ID` (Drive folder containing the CSV export — only needed for the CSV source) and `HEVY_API_KEY` (Hevy API key — only needed for the API source). `draftEmail.js` also reads `TRAINER_EMAIL` (the draft's `To:`) and `TRAINER_NAME` (the greeting) from `.env`; it fails with a clear message if either is missing (demo mode doesn't need them). `secrets/credentials.json` is only needed for the CSV source (service account for Drive); `secrets/oauth-client.json` is needed for Gmail drafting regardless of source (see README). No build, lint, or test setup exists yet.
 
 `.env` also carries `APP_URL`, `APP_KEY`, `PROJECT_ID` — these are leftovers from an earlier Apps-Script-based pipeline and are **no longer read by any script that main.js calls** (see "Legacy/unused code" below). Safe to ignore; don't treat their absence as an error.
 
 ## Demo mode
 
-`/check-in YYYY-MM-DD demo [weight] [avg-HR]` (e.g. `/check-in 2026-10-30 demo 170 150`) runs a faster flow for live demos. It's defined in `.claude/skills/check-in/SKILL.md` ("Demo mode" section), plus a `demo` flag on `scripts/draftEmail.js`. Versus the normal flow it: skips reading `resources/` (uses an inline RPE cheat sheet instead), writes a 2–3 sentence summary, takes weight/HR from the arguments and defaults the other follow-ups (no questions asked), **skips the preview/approval step**, and fills the file with two Edits instead of one per placeholder. It still runs the real pipeline and creates a real Gmail draft, but via `node scripts/draftEmail.js <date> demo`, which **omits the `To:` address** (the `TO` line in `templates/email.md` is ignored) and swaps the "Hey <trainer>," greeting for "Hey there,". The cheat sheet duplicates `resources/*.md` (the source of truth), so keep them in sync.
+`/check-in YYYY-MM-DD demo [weight] [avg-HR]` (e.g. `/check-in 2026-10-30 demo 170 150`) runs a faster flow for live demos. It's defined in `.claude/skills/check-in/SKILL.md` ("Demo mode" section), plus a `demo` flag on `scripts/draftEmail.js`. Versus the normal flow it: skips reading `resources/` (uses an inline RPE cheat sheet instead), writes a 2–3 sentence summary, takes weight/HR from the arguments and defaults the other follow-ups (no questions asked), **skips the preview/approval step**, and fills the file with two Edits instead of one per placeholder. It still runs the real pipeline and creates a real Gmail draft, but via `node scripts/draftEmail.js <date> demo`, which **omits the `To:` address** (`TRAINER_EMAIL` is ignored) and swaps the `[TRAINER_NAME]` greeting for "Hey there,". The cheat sheet duplicates `resources/*.md` (the source of truth), so keep them in sync.
 
 ## Architecture
 
@@ -63,7 +63,7 @@ All credential files live in `secrets/` (gitignored as a folder):
 
 ## Gmail draft (scripts/auth.js + scripts/draftEmail.js)
 
-`draftEmail.js` reads `check-ins/<date>.md`, extracts the `## Output:` block, wraps it in `templates/email.md`, and creates a draft via `gmail.users.drafts.create`. It only **creates** drafts — never sends. Markdown `**bold**` is converted to `<strong>` so labels render bold in Gmail. Subject date is reformatted to `MM/DD/YYYY` from the YYYY-MM-DD CLI arg.
+`draftEmail.js` reads `check-ins/<date>.md`, extracts the `## Output:` block, wraps it in `templates/email.md` (SUBJECT/BODY with `[date]`, `[TRAINER_NAME]` and `[output]` placeholders — keep them unescaped, since some Markdown editors turn `[x]` into `\[x\]`, which stops the `.replace` calls from matching), and creates a draft via `gmail.users.drafts.create`, addressed to `TRAINER_EMAIL` from `.env`. It only **creates** drafts — never sends. Markdown `**bold**` is converted to `<strong>` so labels render bold in Gmail. Subject date is reformatted to `MM/DD/YYYY` from the YYYY-MM-DD CLI arg.
 
 ## Output template contract
 

@@ -9,8 +9,8 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
-  "author": "",
-  "license": "ISC",
+  "author": "Michael Levy",
+  "license": "MIT",
   "description": "",
   "dependencies": {
     "csv-parse": "^7.0.2",

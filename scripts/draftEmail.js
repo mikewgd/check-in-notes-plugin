@@ -1,8 +1,11 @@
 #!/usr/bin/env node
+import dotenv from 'dotenv';
 import { google } from 'googleapis';
 import fs from 'node:fs/promises';
 import path from 'node:path';
 import process2 from 'node:process';
+
+dotenv.config({ path: path.join(process2.cwd(), './.env'), quiet: true });
 
 const OAUTH_CLIENT_PATH = path.join(process2.cwd(), './secrets/oauth-client.json');
 const TOKEN_PATH = path.join(process2.cwd(), './secrets/gmail-token.json');
@@ -29,12 +32,10 @@ function extractOutputBlock(md) {
 }
 
 function parseEmailTemplate(template) {
-  const toMatch = template.match(/\*\*TO:\*\*\s*(\S+)/);
   const subjectMatch = template.match(/\*\*SUBJECT:\*\*\s*(.+)/);
   const bodyParts = template.split(/\*\*BODY:\*\*\s*/);
 
   return {
-    to: toMatch ? toMatch[1].trim() : null,
     subjectTemplate: subjectMatch ? subjectMatch[1].trim() : null,
     bodyTemplate: bodyParts[1] ? bodyParts[1].trim() : null,
   };
@@ -93,16 +94,21 @@ export async function draftEmail(date, { demo = false } = {}) {
   if (!output) return { success: false, data: 'No "## Output:" block in check-in file.' };
 
   const template = await fs.readFile(TEMPLATE_PATH, 'utf8');
-  const { to, subjectTemplate, bodyTemplate } = parseEmailTemplate(template);
+  const { subjectTemplate, bodyTemplate } = parseEmailTemplate(template);
 
-  if ((!to && !demo) || !subjectTemplate || !bodyTemplate) {
-    return { success: false, data: 'templates/email.md is missing TO, SUBJECT, or BODY.' };
+  if (!subjectTemplate || !bodyTemplate) {
+    return { success: false, data: 'templates/email.md is missing SUBJECT or BODY.' };
+  }
+
+  const { TRAINER_EMAIL: to, TRAINER_NAME: trainerName } = process2.env;
+  if (!demo && (!to || !trainerName)) {
+    return { success: false, data: 'Set TRAINER_EMAIL and TRAINER_NAME in .env.' };
   }
 
   const [y, m, d] = date.split('-');
   const displayDate = `${m}/${d}/${y}`;
   const subject = subjectTemplate.replace('[date]', displayDate);
-  const body = demo ? bodyTemplate.replace(/^Hey \w+,/m, 'Hey there,') : bodyTemplate;
+  const body = bodyTemplate.replace('[TRAINER_NAME]', demo ? 'there' : trainerName);
   const filledBody = body.replace('[output]', output);
   const htmlBody = `<div style="font-family: sans-serif;">${mdToHtml(filledBody)}</div>`;
 

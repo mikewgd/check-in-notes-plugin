@@ -46,6 +46,10 @@ HEVY_API_KEY=<your Hevy API key>
 
 # Only needed for the CSV source
 FOLDER_ID=<Drive folder ID containing the CSV export>
+
+# Who the Gmail draft is addressed to, and the name used in the greeting
+TRAINER_EMAIL=<trainer's email>
+TRAINER_NAME=<trainer's first name>
 ```
 
 ### 3. Service account credentials (CSV source only — skip if using the API source)
@@ -120,7 +124,7 @@ The scope is intentionally narrow — only writes under `check-ins/` and the two
 ├── resources/                 # RPE scale + RIR reference material used as the summary's analytical framework
 ├── scripts/                   # Node scripts (see CLAUDE.md for architecture)
 ├── secrets/                   # gitignored: credentials.json, oauth-client.json, gmail-token.json
-├── templates/email.md         # email wrapper (TO/SUBJECT/BODY with [date] and [output] placeholders)
+├── templates/email.md         # email wrapper (SUBJECT/BODY with [date], [TRAINER_NAME] and [output] placeholders)
 ├── .env                       # gitignored
 ├── CLAUDE.md                  # architecture + gotchas (for Claude Code)
 └── package.json
@@ -129,8 +133,7 @@ The scope is intentionally narrow — only writes under `check-ins/` and the two
 ## Customizing the email
 
 `templates/email.md` defines:
-- `**TO:**` — trainer's email
 - `**SUBJECT:**` — uses `[date]` placeholder (rendered as `MM/DD/YYYY`)
-- `**BODY:**` — uses `[output]` placeholder (the filled-in check-in block)
+- `**BODY:**` — uses `[TRAINER_NAME]` (from `.env`) and `[output]` (the filled-in check-in block) placeholders
 
-Edit that file to change recipient, subject, or surrounding wording — no code changes needed.
+The recipient comes from `TRAINER_EMAIL` in `.env`, not the template. Edit the template to change the subject or surrounding wording — no code changes needed. Keep the bracketed placeholders unescaped (`[date]`, not `\[date\]`) — some Markdown editors add backslashes when saving, which stops them from being filled in.

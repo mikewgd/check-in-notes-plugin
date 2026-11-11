@@ -50,7 +50,7 @@ Read:
 
 ## Step 3 — Extract questions from the notes
 
-Scan both the workout-level notes and each exercise's note for any explicit questions or things the user flagged to ask the trainer (look for `?`, phrases like "ask [TRAINER_NAME]", "should I", "is it ok to"). Extract just the question itself — strip addressee/framing preambles like "Ask [TRAINER_NAME] if..." or "Ask [TRAINER_NAME]:" so only the actual question remains (e.g. "Ask [TRAINER_NAME] if there is an alternative exercise for rear delt cable fly?" becomes "Is there an alternative exercise for rear delt cable fly?"). These become `[workoutQuestions]`. If there are none, leave that placeholder removed (empty string, no "N/A").
+Scan both the workout-level notes and each exercise's note for any explicit questions or things the user flagged to ask the trainer (look for `?`, phrases like "ask <trainer>" where `<trainer>` is whatever name the user wrote in the note, "should I", "is it ok to"). Extract just the question itself — strip addressee/framing preambles like "Ask <trainer> if..." or "Ask <trainer>:" so only the actual question remains (e.g. "Ask <trainer> if there is an alternative exercise for rear delt cable fly?" becomes "Is there an alternative exercise for rear delt cable fly?"). These become `[workoutQuestions]`. If there are none, leave that placeholder removed (empty string, no "N/A").
 
 ## Step 4 — Summarize the workout performance
 
